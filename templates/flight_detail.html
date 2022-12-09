@@ -1,0 +1,66 @@
+{% extends 'base.html'%}
+{% block content %}
+<div>
+    <div class="container" style="max-width: 1000px">
+        <div class="row mb-4" style="border: 2px solid #ff6600;">
+            <div class="col-12 p-3 mb-3 d-flex justify-content-between text-light" style="background-color: #346e51 !important;">
+                    <div class="d-flex d-flex-inline">
+                        <div class="pe-3 d-inline-flex"><p class ="fw-bold mx-2 title-subject">Mã chuyến bay: </p> {{flight.code}} | <p class ="fw-bold mx-2 title-subject"> Ngày khởi hành: </p> {{ flight.departure_time }}</div>
+                        <div class="dropdown"></div>
+                    </div>
+                    <div class="text-end">
+                        ...: <span class="fw-bold">{{ flight.from_airport }}</span>
+                    </div>
+            </div>
+            <div class="col-lg-12 p-0">   
+                <div class="card mb-3 border-0">
+                    <div class="row g-0">
+                        <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                                <!-- <div class="card-body p-4 d-inline-flex">
+                                    <p class="card-text fw-bold">Thời gian bay : {{flight.flight_time|title}} phút</p>
+                                    <div class="text-end"> <p class="card-text">Số lượng vé hạng 1: {{flight.one_class_quantity}}</p> </div>
+                                </div> -->
+                                <div class="card-body p-2 d-flex d-inline-flex">                               
+                                    <div class="pe-3 d-inline-flex"><p class="card-text small">Sân bay đi: {{from_airport.name}}</p></div>
+                                </div> 
+                                <div class="card-body p-2 text-end"> <p class="card-text small">Sân bay đến: {{to_airport.name}}</p> 
+                                <!--<p class="card-text small text-end">Số lượng vé hạng 2: {{flight.second_class_quantity}}</p>-->
+                        </div>
+                    </div>
+                    <div class="row g-0">
+                        <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                            <div class="card-body p-2"> <p class="card-text small">Thời gian bay: {{flight.flight_time}}</p> 
+                        </div>
+                    </div>
+                    <div class="row g-0">
+                        <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                                <div class="card-body p-2 d-flex d-inline-flex">                               
+                                    <div class="pe-3 d-inline-flex"><p class="card-text small">Số lượng ghế hạng 1 : {{flight.one_class_quantity}}</p></div>
+                                </div> 
+                                <div class="card-body p-2 text-end"> <p class="card-text small">Số lượng ghế hạng 2: {{flight.second_class_quantity}}</p> 
+                        </div>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" action="{{ url_for('pay') }}">
+                        <div class="row g-0">
+                            <div class="col-7 px-3 mb-3 d-flex justify-content-between ">          
+                            {% for t in ticket_prices %}          
+                                <input type="radio" class="btn-check" name="ticket_class" value="{{t.ticket_class_id}}" id="option{{t.id}}" autocomplete="off" checked>
+                                <label class="btn btn-outline-warning" for="option{{t.id}}">Hạng {{t.ticket_class_id}}: {{t.price}}</label>
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    {% if current_user.is_authenticated %}
+    <input type="button" value="Thanh toán" onclick="pay()" class="btn btn-primary" />
+    {% else %}
+    <p class="text-danger fw-bold text-end">Vui lòng <a href="/signin">đăng nhập</a> để thanh toán!</p>
+    {% endif %}
+</div>
+
+{% endblock content %}
