@@ -87,17 +87,19 @@ class Ticket(BaseModel):
 
     user_id = Column(Integer, ForeignKey(User.id), nullable = False)
     flight_id = Column(Integer, ForeignKey(Flight.id), nullable = False)
+    date_of_payment = Column(DateTime, default=datetime.now())
     ticket_class_id = Column(Integer, ForeignKey(TicketClass.id), nullable = False)
     ticket_price_id = Column(Integer, ForeignKey('ticket_price.id'), nullable = False)
 
-class Order(BaseModel):
-    __tablename__ = 'order'
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    ticket_id = Column(Integer, ForeignKey(Ticket.id), nullable = False)
-    date_of_payment = Column(DateTime, default=datetime.now())
-    price = Column(Float, nullable=False)
-    status = Column(Boolean, default=False)
-    tickets = relationship('Ticket', backref='orders', lazy=True)
+
+# class Order(BaseModel):
+#     __tablename__ = 'order'
+#     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+#     ticket_id = Column(Integer, ForeignKey(Ticket.id), nullable = False)
+#     date_of_payment = Column(DateTime, default=datetime.now())
+#     price = Column(Float, nullable=False)
+#     status = Column(Boolean, default=False) 
+#     tickets = relationship('Ticket', backref='orders', lazy=True)
 
 class TicketPrice(BaseModel):
     __tablename__ = 'ticket_price'

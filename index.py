@@ -110,21 +110,38 @@ def user_signout():
 def user_load(user_id):
     return dao.get_user_by_id(user_id = user_id)
 
-@app.route('/api/pay', methods=['post'])
+@app.route('/api/pay')
 @login_required
 def pay():
-    if request.method == 'POST':
+    # if request.method == 'POST':
         flight_id = request.args.get('flight_id')
         ticket_class_id = request.args.get('ticket_class')
         ticket_price = dao.get_ticket_price_by_id(flight_id= flight_id, ticket_class_id = ticket_class_id)
+        ticket = dao.add_ticket(flight_id= flight_id, ticket_class= ticket_class_id, ticket_price= ticket_price)
+
+        # try:
+        #     ticket = dao.add_ticket(flight_id= flight_id, ticket_class= ticket_class_id, ticket_price= ticket_price)
+        #     return jsonify({'status': 200})
+        # except Exception as ex:
+        #     print(str(ex))
+        #     return jsonify({'status': 500})
+        return render_template('flight_detail.html',flight_id = flight_id, ticket_class_id = ticket_class_id)
+
+@app.route('/api/payment', methods=['post'])
+@login_required
+def payment():
+        data = request.json
+
+        flight_id = data['flight_id']
+        ticket_class_id = data['ticket_class_id']
+        ticket_price_id = data['ticket_price_id']
+
         try:
-            ticket = dao.add_ticket(flight_id= flight_id, ticket_class= ticket_class_id, ticket_price= ticket_price)
-            order = dao.add_order(flight_id= flight_id, ticket_id= ticket, price = ticket_price.price)
+            ticket = dao.add_ticket(flight_id= flight_id, ticket_class_id= ticket_class_id, ticket_price_id= ticket_price_id)
             return jsonify({'status': 200})
         except Exception as ex:
             print(str(ex))
             return jsonify({'status': 500})
-
 
 if __name__ == "__main__":
     app.run(debug = True)

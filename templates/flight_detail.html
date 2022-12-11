@@ -40,8 +40,23 @@
                                 <div class="card-body p-2 text-end"> <p class="card-text small">Số lượng ghế hạng 2: {{flight.second_class_quantity}}</p> 
                         </div>
                     </div>
-                    <form method="post" enctype="multipart/form-data" action="{{ url_for('pay') }}">
-                        <div class="row g-0">
+                    <div class="row g-0 form-group">
+                        <div class="col-7 px-3 mb-3 d-flex justify-content-between ">          
+                            {% for t in ticket_prices %}          
+                                <input type="radio" class="btn-check" name="ticket_class" value="{{t.ticket_class_id}}" id="option{{t.id}}" data-price="{{t.id}}" autocomplete="off" checked>
+                                <label class="btn btn-outline-warning" for="option{{t.id}}">Hạng {{t.ticket_class_id}}: {{t.price}}</label>
+                            {% endfor %}
+                    </div>
+                    </div>
+                            {% if current_user.is_authenticated %}
+                            <button id="pay" type="button" value="Thanh toán" onclick="payment({{flight.id}}, SelectedTicketClass()[0], SelectedTicketClass()[1] )" class="btn btn-primary mb-1">Thanh toán</button>
+                            {% else %}
+                            <p class="text-danger fw-bold text-end">Vui lòng <a href="/signin">đăng nhập</a> để thanh toán!</p>
+                            {% endif %}
+                    </div>
+
+                <!-- <form>
+                        <div class="row g-0 form-group">
                             <div class="col-7 px-3 mb-3 d-flex justify-content-between ">          
                             {% for t in ticket_prices %}          
                                 <input type="radio" class="btn-check" name="ticket_class" value="{{t.ticket_class_id}}" id="option{{t.id}}" autocomplete="off" checked>
@@ -49,18 +64,24 @@
                             {% endfor %}
                             </div>
                         </div>
-                    </form>
+                            {% if current_user.is_authenticated %}
+                            <button type="submit" class="btn btn-primary mb-1">Thanh toán</button>
+                            {% else %}
+                            <p class="text-danger fw-bold text-end">Vui lòng <a href="/signin">đăng nhập</a> để thanh toán!</p>
+                            {% endif %}
+                        </div>
+                </form> -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 <div>
-    {% if current_user.is_authenticated %}
-    <input type="button" value="Thanh toán" onclick="pay()" class="btn btn-primary" />
+    {% if ticket_class_id %}
+        <button>Chào {{ticket_class_id}}</button>
     {% else %}
-    <p class="text-danger fw-bold text-end">Vui lòng <a href="/signin">đăng nhập</a> để thanh toán!</p>
-    {% endif %}
+        <button class="btn btn-primary">Hello {{flight_id}}</button>
+    {% endif%}
 </div>
 
 {% endblock content %}

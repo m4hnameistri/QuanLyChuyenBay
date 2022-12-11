@@ -1,6 +1,7 @@
-from models import Location, Country, Flight, Airport, User, Order, Ticket, TicketClass, TicketPrice, UserRole
+from models import Location, Country, Flight, Airport, User, Ticket, TicketClass, TicketPrice, UserRole
 from __init__ import db
 from sqlalchemy.orm import aliased
+from flask_login import current_user
 from datetime import datetime
 import hashlib
 
@@ -88,8 +89,8 @@ def check_login(username, password, role = UserRole.USER):
                                 User.password.__eq__(password),
                                 User.user_role_id.__eq__(role)).first()
 
-def add_ticket(flight_id, ticket_class, ticket_price):
-    t = Ticket(user_id = current_user, flight_id = flight_id, ticket_class_id = ticket_class, ticket_price_id = ticket_price)
+def add_ticket(flight_id, ticket_class_id, ticket_price_id):
+    t = Ticket(user_id = current_user.id, flight_id = flight_id, ticket_class_id = ticket_class_id, ticket_price_id = ticket_price_id)
     db.session.add(t)
     db.session.commit()
 
