@@ -3,6 +3,8 @@ from __init__ import db
 from sqlalchemy.orm import aliased
 from flask_login import current_user
 from datetime import datetime
+from sqlalchemy import func
+from cryptography.hazmat.backends import default_backend
 import hashlib
 
 
@@ -94,10 +96,12 @@ def add_ticket(flight_id, ticket_class_id, ticket_price_id):
     db.session.add(t)
     db.session.commit()
 
-def add_order(flight_id, ticket_id, price):
-    o = Order(user_id = current_user, ticket_id = ticket_id, price = price )
-    db.session.add(o)
-    db.session.commit()
+# def add_order(flight_id, ticket_id, price):
+#     o = Order(user_id = current_user, ticket_id = ticket_id, price = price )
+#     db.session.add(o)
+#     db.session.commit()
+
+
 # def sth():
 #     from_airports = []
 #     to_airports = []
@@ -117,15 +121,23 @@ def add_order(flight_id, ticket_id, price):
 #     for fl in flights:
 #         print(fl)
 
-# def add_flight():
-#     date_time_str = '12/12/22 20:45:00'
+def add_flight():
+    date_time_str = '16/12/22'
 
-#     date_time_obj = datetime.strptime(date_time_str, '%d/%m/%y %H:%M:%S')
-#     c = Flight(code = "HNN-850", from_airport = 1, to_airport = 2, departure_time = date_time_obj)
-#     db.session.add(c)
-#     db.session.commit()
+    date_time_obj = datetime.strptime(date_time_str, '%d/%m/%y')
+    c = Flight(code = "HNN-850", from_airport = 1, to_airport = 2, departure_time = date_time_obj)
+    db.session.add(c)
+    db.session.commit()
 
+def flight_stats():
+    # return Flight.query.join(Ticket, Ticket.flight_id.__eq__(Flight.id), isouter = True).add_columns(func.count(Ticket.id))\
+    #                 .group_by(Flight.id, Flight.departure_time).all()
+    return db.session.query(Flight.id, Flight.departure_time, Flight.one_class_quantity, Flight.second_class_quantity,func.count(Ticket.id).label('So luong ve da ban'), func.sum(TicketPrice.price))\
+                     .join(Ticket, Ticket.flight_id == Flight.id, isouter = True)\
+                     .join(TicketPrice, TicketPrice.id == Ticket.ticket_price_id, isouter = True)\
+                     .group_by(Flight.id, Flight.departure_time).all()
 if __name__ == "__main__":
     # print(load_flights(from_country = 1,to_country = 1))
-    t = get_ticket_price_by_id(9)
-    print(t)
+    # t = get_ticket_price_by_id(9)
+    # print(t)
+    print(flight_stats())
