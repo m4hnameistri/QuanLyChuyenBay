@@ -90,16 +90,16 @@ def user_signin():
             err_msg = 'Username hoặc password không chính xác !'
     return render_template('/user/login.html', err_msg = err_msg)
 
-@app.route('/admin-signin', methods=['post'])
+@app.route('/admin-signin', methods=['get','post'])
 def admin_signin():
-    if request.method == 'POST':
+    # if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
         user = dao.check_login(username=username, password=password, role=UserRole.ADMIN)
         if user:
             login_user(user = user)
-    return redirect('/admin')
+        return redirect('/admin')
 
 @app.route('/user-logout')
 def user_signout():
@@ -130,18 +130,38 @@ def pay():
 @app.route('/api/payment', methods=['post'])
 @login_required
 def payment():
+        msg = ''
         data = request.json
 
         flight_id = data['flight_id']
         ticket_class_id = data['ticket_class_id']
         ticket_price_id = data['ticket_price_id']
 
+        fl = dao.get_flight_by_id(flight_id= flight_id)
+        # Tính khoảng cách ngày khởi hành và thời gian hiện tại
+        diff = fl.departure_time - datetime.now()
+        sec = diff.total_seconds()
+
+        # Tính số lượng vé đã được đặt của mỗi chuyến bay
+        ticket_quantity = dao.count_ticket_by_flight(flight_id= flight_id)
+        ticket_quantity = ticket_quantity[0][1]
+        # chỉ đặt cho các chuyến bay trước 12h (43200 s) lúc khởi hành.
         try:
-            ticket = dao.add_ticket(flight_id= flight_id, ticket_class_id= ticket_class_id, ticket_price_id= ticket_price_id)
-            return jsonify({'status': 200})
+            if sec <= 43200 :
+                msg = "Chỉ được đặt các chuyến bay trước 12h lúc khởi hành !!!"
+                return jsonify({'msg' : msg})
+            elif ticket_quantity >= (fl.one_class_quantity + fl.second_class_quantity):
+                msg = "Đã hết vé ! Vui lòng chọn chuyến bay khác"
+                return jsonify({'msg' : msg})
+            else:
+                ticket = dao.add_ticket(flight_id= flight_id, ticket_class_id= ticket_class_id, ticket_price_id= ticket_price_id)
+                return jsonify({'status': 200})
         except Exception as ex:
             print(str(ex))
             return jsonify({'status': 500})
 
+
+
 if __name__ == "__main__":
+    from admin import *
     app.run(debug = True)

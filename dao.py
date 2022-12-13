@@ -1,9 +1,10 @@
-from models import Location, Country, Flight, Airport, User, Ticket, TicketClass, TicketPrice, UserRole
+from models import Location, Country, Flight, Airport, User, Ticket, TicketClass, TicketPrice, UserRole, TuyenBay, SanBayTrungGian
 from __init__ import db
 from sqlalchemy.orm import aliased
 from flask_login import current_user
 from datetime import datetime
 from sqlalchemy import func
+from sqlalchemy.sql import extract
 from cryptography.hazmat.backends import default_backend
 import hashlib
 
@@ -38,8 +39,17 @@ def get_airport_by_id(airport_id):
 def get_flight_by_id(flight_id):
     return Flight.query.get(flight_id)
 
+def count_ticket_by_flight(flight_id):
+    return db.session.query(Flight.id, func.count(Ticket.id))\
+                    .join(Ticket, Ticket.flight_id == Flight.id)\
+                    .filter(Flight.id == flight_id)\
+                    .group_by(Flight.id).all()
+
 def get_user_by_id(user_id):
     return User.query.get(user_id)
+
+def get_ticket_by_id(flight_id):
+    return Ticket.query.filter(flight_id = flight_id)
 
 def load_flights(from_country = None, to_country = None, departure_date = None):
     a1 = aliased(Airport)
@@ -122,22 +132,40 @@ def add_ticket(flight_id, ticket_class_id, ticket_price_id):
 #         print(fl)
 
 def add_flight():
-    date_time_str = '16/12/22'
+    date_time_str = '15/11/22 19:15:00'
 
-    date_time_obj = datetime.strptime(date_time_str, '%d/%m/%y')
-    c = Flight(code = "HNN-850", from_airport = 1, to_airport = 2, departure_time = date_time_obj)
+    date_time_obj = datetime.strptime(date_time_str, '%d/%m/%y %H:%M:%S')
+    c = Flight(code = "CB-116", from_airport = 4, to_airport = 2, departure_time = date_time_obj)
     db.session.add(c)
     db.session.commit()
 
 def flight_stats():
     # return Flight.query.join(Ticket, Ticket.flight_id.__eq__(Flight.id), isouter = True).add_columns(func.count(Ticket.id))\
     #                 .group_by(Flight.id, Flight.departure_time).all()
-    return db.session.query(Flight.id, Flight.departure_time, Flight.one_class_quantity, Flight.second_class_quantity,func.count(Ticket.id).label('So luong ve da ban'), func.sum(TicketPrice.price))\
+    return db.session.query(Flight.id, Flight.code, Flight.departure_time, Flight.one_class_quantity, Flight.second_class_quantity,func.count(Ticket.id).label('So luong ve da ban'), func.sum(TicketPrice.price))\
                      .join(Ticket, Ticket.flight_id == Flight.id, isouter = True)\
                      .join(TicketPrice, TicketPrice.id == Ticket.ticket_price_id, isouter = True)\
                      .group_by(Flight.id, Flight.departure_time).all()
+
+def avenue_month_stats(month = None, from_date = None, to_date = None):
+    s = db.session.query(TuyenBay.id, TuyenBay.name, func.count(func.distinct(Ticket.id)), func.sum(TicketPrice.price))\
+                .join(Flight, Flight.tuyen_bay_id == TuyenBay.id, isouter = True)\
+                .join(TicketPrice, TicketPrice.flight_id == Flight.id)\
+                .join(Ticket, Ticket.ticket_price_id == TicketPrice.id)\
+                .group_by(TuyenBay.id, TuyenBay.name)
+    if month:
+        s = s.filter(extract('month', Ticket.date_of_payment).__eq__(month))
+    if from_date:
+        s = s.filter(Ticket.date_of_payment.__ge__(from_date))
+    
+    if to_date:
+        s = s.filter(Ticket.date_of_payment.__le__(to_date))
+
+    return s.all()
+
+
 if __name__ == "__main__":
     # print(load_flights(from_country = 1,to_country = 1))
     # t = get_ticket_price_by_id(9)
     # print(t)
-    print(flight_stats())
+    print(count_ticket_by_flight(11))

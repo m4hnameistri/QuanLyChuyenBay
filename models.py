@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum as UserEnum
 from __init__ import db
 from flask_login import UserMixin
+from cryptography.hazmat.backends import default_backend
 
 class BaseModel(db.Model):
     __abstract__ = True
@@ -59,6 +60,14 @@ class Airport(BaseModel):
     def __str__(self):
         return self.name
 
+class TuyenBay(BaseModel):
+    name = Column(String(50), nullable=False, unique = True)
+    active = Column(Boolean, default = True)
+    flight = relationship('Flight', backref = 'tuyen_bay', lazy = True)
+
+    def __str__(self):
+        return self.name
+
 class Flight(BaseModel):
     __table_args__ = {'extend_existing': True}
 
@@ -70,12 +79,15 @@ class Flight(BaseModel):
     departure_time = Column(DateTime, default = datetime.now())
     active = Column(Boolean, default = True)
     flight_time = Column(Integer, default = 60)
+    tuyen_bay_id = Column(Integer, ForeignKey(TuyenBay.id), nullable = False)
     ticket = relationship('Ticket', backref = 'flight', lazy = True)
     san_bay_di = relationship("Airport", foreign_keys=[from_airport])
     san_bay_den = relationship("Airport", foreign_keys=[to_airport])
     def __str__(self):
         return self.code
     
+
+
 class TicketClass(BaseModel):
     __table_args__ = {'extend_existing': True}
     type = Column(String(20), nullable = False, unique = True)
@@ -107,5 +119,28 @@ class TicketPrice(BaseModel):
     ticket_class_id = Column(Integer, ForeignKey(TicketClass.id))
     price = Column(Float, default=0)
 
+class SanBayTrungGian(BaseModel):
+    flight_id = Column(Integer, ForeignKey(Flight.id), nullable = False)
+    airport_id = Column(Integer, ForeignKey(Airport.id), nullable = False)
+    thoi_gian_dung = Column(Integer, default = 15)
+    ghi_chu = Column(String(100), nullable = True )
+ 
 if __name__ == "__main__":
     db.create_all()
+    # tuyenbay = [{
+    #     "name": "TB1",
+    # }, {
+    #     "name": "TB2",
+    # }, {
+    #     "name": "TB3",
+    # }, {
+    #     "name": "TB4",
+    # }]
+
+
+
+    # for c in chuyenbay:
+    #     cb = TuyenBay(name = t['name'])
+    #     db.session.add(tb)
+
+    # db.session.commit()

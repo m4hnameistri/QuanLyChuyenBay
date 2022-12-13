@@ -1,7 +1,12 @@
 {% extends 'base.html'%}
 {% block content %}
+
 <div>
+    
     <div class="container" style="max-width: 1000px">
+        <div>
+            <h6 id="msg_err" class="w-50 mt-4 text-center">{{ msg }} </h6>
+        </div>
         <div class="row mb-4" style="border: 2px solid #ff6600;">
             <div class="col-12 p-3 mb-3 d-flex justify-content-between text-light" style="background-color: #346e51 !important;">
                     <div class="d-flex d-flex-inline">
@@ -76,12 +81,4 @@
         </div>
     </div>
 </div>
-<div>
-    {% if ticket_class_id %}
-        <button>Chào {{ticket_class_id}}</button>
-    {% else %}
-        <button class="btn btn-primary">Hello {{flight_id}}</button>
-    {% endif%}
-</div>
-
 {% endblock content %}

@@ -1,13 +1,3 @@
-// function pay() {
-//     if (confirm("Bạn chắc chắn thanh toán không?") == true) {
-//         fetch("/api/pay").then(res => res.json()).then(data => {
-//             if (data.status === 200)
-//                 location.reload()
-//         })
-//     }
-
-// }
-
 function SelectedTicketClass() {
     var btn = document.querySelector('#pay');        
     var radioButtons = document.querySelectorAll('input[name="ticket_class"]');
@@ -37,6 +27,12 @@ function payment(flight_id, ticket_class_id, ticket_price_id){
         }).then((res) => res.json()).then((data) => {
             if (data.status === 200)
                 location.reload()
+            else
+            {
+                let msg_err = document.getElementById('msg_err');
+                msg_err.innerText = data.msg;
+                msg_err.className += " alert alert-danger";
+            }
         }) // js promise
     }   
 }
