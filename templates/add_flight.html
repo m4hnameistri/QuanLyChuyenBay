@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Lập chuyến bay{% endblock title %}
+{% block content %}
+<h1 class = "display-5 p-2 mb-5 fw-bold text-center text-info"> Lập chuyến bay </h1>
+{% if err_msg %}
+<div class="alert alert-danger">
+    {{ err_msg }}
+</div>
+{% endif %}
+<div class= "container col-lg-6 col-md-2">
+    <form method="post" action="{{ url_for('add_flight') }}">
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" required id="code" placeholder="Nhập mã chuyến bay" name="code" required>
+            <label for="code">Mã chuyến bay</label>
+        </div>
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" list="fromListOptions" required id="from_airport" placeholder="Nhập sân bay xuất phát" name="from_airport" autocomplete="on" required>
+            <datalist id="fromListOptions">
+                {% for a in airports %}
+                <option value="{{a[0]}}">{{a[1]}} - {{a[3]}}</option>
+                {% endfor %}
+            </datalist>
+            <label for="from_airport">Từ sân bay</label>
+        </div>
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" list="toListOptions" required id="to_airport" placeholder="Nhập sân bay đến" name="to_airport" required>
+            <datalist id="toListOptions">
+                {% for a in airports %}
+                <option value="{{a[0]}}">{{a[1]}} - {{a[3]}}</option>
+                {% endfor %}
+            </datalist>
+            <label for="to_airport">Đến sân bay</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="datetime-local" class="form-control" required id="departure_date" placeholder="Nhập xác nhận mật khẩu" name="departure_date" required>
+            <label for="departure_date">Ngày - giờ</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="number" min="30" class="form-control" required id="flight_time" placeholder="Nhập xác nhận mật khẩu" name="flight_time" required>
+            <label for="flight_time">Thời gian bay</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="number" min="1" class="form-control" required id="one_quantity" placeholder="Nhập số lượng" name="one_quantity" required>
+            <label for="one_quantity">Số lượng vé hạng 1</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="number" min="1" class="form-control" required id="second_quantity" placeholder="Nhập xác nhận mật khẩu" name="second_quantity" required>
+            <label for="second_quantity">Số lượng vé hạng 2</label>
+        </div>
+        
+        {% for i in range(trung_gian_quantity) %}
+    
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{i}}" aria-expanded="false" aria-controls="collapseExample">
+              Thêm sân bay trung gian
+            </button>
+            <div class="collapse mb-2" id="collapseExample{{i}}">
+                <div class="mb-3 mt-3">
+                    <input type="text" class="form-control" list="datalistOptions{{i}}" required id="inter_airport{{i}}" placeholder="Nhập sân bay trung gian {{i + 1}}" name="inter_airport{{i}}">
+                    <datalist id="datalistOptions{{i}}">
+                        {% for a in airports %}
+                        <option value="{{a[0]}}">{{a[1]}} - {{a[3]}}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="mt-3 mb-3">
+                    <input type="number" min="20" max="30" class="form-control" required id="stop_time{{i}}" placeholder="Thời gian dừng" name="stop_time{{i}}" >
+                </div>
+                <div class="mt-3 mb-3">
+                    <input type="text" class="form-control" required id="note{{i}}" placeholder="Ghi chú" name="note{{i}}">
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-floating mt-3 mb-3 text-center">
+            <input type="submit" value="Thêm chuyến bay" class="btn btn-outline-success" />
+        </div>
+    </form>
+</div>
+
+{% endblock content %}

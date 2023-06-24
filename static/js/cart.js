@@ -36,3 +36,20 @@ function payment(flight_id, ticket_class_id, ticket_price_id){
         }) // js promise
     }   
 }
+
+function deleteFlight(flight_id){
+    if (confirm("Bạn có muốn xóa không?") == true){
+        fetch(`/api/delete-flight/${flight_id}`, {
+            method: "delete",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((res) => res.json()).then((data) => {
+            if (data.msg)
+                alert(data.msg)
+            let element = document.getElementById("flight" + flight_id)
+            element.style.display = "none"
+            
+        }) // js promise
+    }   
+}

@@ -1,7 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block body %}
-{% if current_user.is_authenticated %}
-<h1> WELCOME {{current_user.name}} TO ADMINISTRATION WEBSITE ! </h1>
+{% if current_user.is_authenticated and current_user.user_role_id == role.ADMIN %}
+<h1> WELCOME {{current_user.username}} TO ADMINISTRATION WEBSITE ! </h1>
 <div class="row">
     <div class="col-md-7 col-sm-12">
         <table class="table">
@@ -22,7 +22,7 @@
                 <td>{{ s[4] }}</td>
                 <td>{{ s[5] }}</td>
                 <td>
-                    {% if s[2] %}
+                    {% if s[6] %}
                         {{ "{:,.0f}".format(s[6]) }} VNĐ
                     {% else %}
                         0 VNĐ
@@ -47,6 +47,7 @@
     let borderColors = []
     let r, g, b;
     {% for s in stats  %}
+        {% if s[6] %}
         labels.push('{{ s[1] }}')
         quantity.push({{ s[5] }})
         avenue.push({{ s[6] }})
@@ -57,6 +58,7 @@
         
         colors.push(`rgba(${r}, ${g}, ${b}, 0.2)`)
         borderColors.push(`rgba(${r}, ${g}, {$b}, 1)`)
+        {% endif %}
     {% endfor %}
     window.onload = function() {
         const ctx = document.getElementById('myChart').getContext('2d');

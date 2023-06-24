@@ -22,11 +22,16 @@
                     {% else %}
                     0 VNĐ
                     {% endif%}
-                <td></td>
+        
+                <td>{{s[2]}} / <span class="sum_quantity"></span>
+                </td>
                 <td></td>
             </tr>
             {% endfor %}
         </table>
+        <div>
+            <p class="alert alert-warning d-flex d-inline-flex w-100">Tổng doanh thu: <span id="avenue" class="mx-5"> </span></p>
+        </div>
     </div>    
     <div class="col-md-6 col-sm-12">
         <form>
@@ -53,7 +58,8 @@
     let labels = []
     let quantity = []
     let avenue = []
-
+    let sum = 0
+    let sum_quantity = 0
     let colors = []
     let borderColors = []
     let r, g, b;
@@ -61,8 +67,9 @@
         {% if s[3] %}
             labels.push('{{ s[1] }}')
             quantity.push({{ s[2] }})
+            sum_quantity += {{s[2]}}
             avenue.push({{ s[3] }})
-
+            sum += {{s[3]}}
             r = Math.random() * 255
             g = Math.random() * 255
             b = Math.random() * 255
@@ -71,8 +78,15 @@
             borderColors.push(`rgba(${r}, ${g}, {$b}, 1)`)
         {% endif %}
     {% endfor %}
+    let doanh_thu = document.getElementById('avenue')
+    doanh_thu.innerText = sum.toLocaleString('en')
+    let tong_sl = document.getElementsByClassName('sum_quantity')
+    for (var i = 0; i < tong_sl.length; i++){
+         tong_sl[i].innerText = sum_quantity
+    }
     window.onload = function() {
         const ctx = document.getElementById('myChart').getContext('2d');
+
         loadChart(ctx, labels, avenue, 'bar', colors, borderColors);
 }
 

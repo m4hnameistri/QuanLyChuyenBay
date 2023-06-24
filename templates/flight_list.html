@@ -1,0 +1,64 @@
+{% extends 'base.html'%}
+{% block title %}Danh sách chuyến bay{% endblock title %}
+
+{% block content %}
+<h1 class = "display-5 p-2 mb-5 fw-bold text-center text-info"> Danh sách chuyến bay </h1>
+<div class="container col-6 mb-5">
+    <h5 class="fw-bold lh-1 mb-3 alert alert-info">Tra cứu chuyến bay</h5>
+    <form>
+        <div class="mb-3 form-group">
+            <label for="flight_code" class="control-label">Mã chuyến bay</label>
+            <!-- <select type="text" id="flight_code" name="flight_code" class="form-select form-select-sm rounded-0 select2" autocomplete="on">
+                <option value=""  disabled selected></option>
+                {% for country in countries %}
+                    <option value="{{country.id}}">{{country.name}}</option>
+                {% endfor %}
+            </select> -->
+            <input type="text" id="flight_code" name="flight_code" class="form-control form-control-sm rounded-0" autocomplete="on">
+        </div>
+        <div class="mb-3 form-group">
+            <label class="control-label">Departure Date</label>
+            <input type="datetime-local" name="departure_date" class="form-control form-control-sm rounded-0 timepicker">
+        </div> 
+        <button class="btn btn-primary" type="submit">Tìm</button>
+        <hr class="dropdown-divider">
+        <hr class="dropdown-divider mb-5">
+    </form>
+</div>
+<div class="mb-2">
+    <hr class="dropdown-divider mb-3">
+    <a href="{{ url_for('add_flight') }}"><button class="btn btn-success">Thêm </button></a>
+</div>
+{% if chuyenbay %}
+<table class="table table-striped table-hover table-bordered">
+    <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">From Airport</th>
+          <th scope="col">To Airport</th>
+          <th scope="col">Departure Date</th>
+          <th scope="col">Flight Time</th>
+          <th scope="col">One Class Quantity</th>
+          <th scope="col">Second Class Quantity</th>
+          <th scope="col"></th>
+        </tr>
+    </thead>
+        {% for fl, from, to in chuyenbay %}
+            <tbody class="table-group-divider">
+                    <tr id="flight{{fl.id}}" class = "clickable-row" data-href="{{url_for('flight_detail', flight_id=fl.id)}}">
+                        <th scope="row">{{ fl.code }}</th>
+                        <td>{{ from.name }}</td>
+                        <td>{{ to.name }}</td>
+                        <td>{{ fl.departure_time }}</td>
+                        <td>{{ fl.flight_time }}</td>
+                        <td>{{ fl.one_class_quantity }}</td>
+                        <td>{{ fl.second_class_quantity }}</td>
+                        <td>            
+                            <input type="button" value="Xóa" onclick="deleteFlight({{fl.id}})" class="btn btn-danger" />
+                        </td>
+                    </tr>
+            </tbody>
+        {% endfor %}
+  </table>
+{% endif %}
+{% endblock %}

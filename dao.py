@@ -18,6 +18,11 @@ def load_countries():
 def load_airports():
     return Airport.query.all()
 
+def load_airports_city():
+    return db.session.query(Airport.id, Airport.name, Location.id, Location.city)\
+                    .join(Location, Airport.location_id == Location.id)\
+                    .all()
+
 def load_user():
     return User.query.all()
 
@@ -28,11 +33,12 @@ def load_ticket_price():
     return TicketPrice.query.all()
 
 def get_ticket_price_by_id(flight_id = None, ticket_class_id = None):
+    q = TicketPrice.query
     if flight_id:
-        return TicketPrice.query.filter(TicketPrice.flight_id.__eq__(flight_id)).all()
+        q = q.filter(TicketPrice.flight_id.__eq__(flight_id))
     if ticket_class_id:
-        return TicketPrice.query.filter(TicketPrice.ticket_class_id.__eq__(ticket_class_id)).first()
-
+        q = q.filter(TicketPrice.ticket_class_id.__eq__(ticket_class_id))
+    return q.all()
 def get_airport_by_id(airport_id):
     return Airport.query.get(airport_id)
 
@@ -45,13 +51,20 @@ def count_ticket_by_flight(flight_id):
                     .filter(Flight.id == flight_id)\
                     .group_by(Flight.id).all()
 
+def count_ticket_by_ticket_class(flight_id, ticket_class_id):
+    return db.session.query(Flight.id, func.count(Ticket.id))\
+                    .join(Flight, Ticket.flight_id == Flight.id)\
+                    .filter(Ticket.flight_id == flight_id)\
+                    .filter(Ticket.ticket_class_id == ticket_class_id)\
+                    .first()
+
 def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 def get_ticket_by_id(flight_id):
     return Ticket.query.filter(flight_id = flight_id)
-
-def load_flights(from_country = None, to_country = None, departure_date = None):
+    
+def load_flights(from_country = None, to_country = None, departure_date = None, code = None):
     a1 = aliased(Airport)
     a2 = aliased(Airport)
     lo1 = aliased(Location)
@@ -77,6 +90,9 @@ def load_flights(from_country = None, to_country = None, departure_date = None):
     if departure_date:
         f = f.filter(Flight.departure_time.__gt__(departure_date))
 
+    if code:
+        f = f.filter(Flight.code.contains(code))
+        
     if from_country and to_country:
         f = f.filter(c1.id == from_country)
         f = f.filter(c2.id == to_country)
@@ -94,12 +110,23 @@ def add_user(name, username, password, **kwargs):
     db.session.add(user)
     db.session.commit()
 
+# def check_login(username, password, role = UserRole.USER):
+#     if username and password:
+#         password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
+#         return User.query.filter(User.username.__eq__(username.strip()),
+#                                 User.password.__eq__(password),
+#                                 User.user_role_id.__eq__(role)).first()
+    
+
 def check_login(username, password, role = UserRole.USER):
+    q = User.query
     if username and password:
         password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-        return User.query.filter(User.username.__eq__(username.strip()),
-                                User.password.__eq__(password),
-                                User.user_role_id.__eq__(role)).first()
+        q = q.filter(User.username.__eq__(username.strip()),
+                                User.password.__eq__(password))
+    if role == UserRole.ADMIN:
+        q = q.filter(User.user_role_id.__eq__(role))
+    return q.first()
 
 def add_ticket(flight_id, ticket_class_id, ticket_price_id):
     t = Ticket(user_id = current_user.id, flight_id = flight_id, ticket_class_id = ticket_class_id, ticket_price_id = ticket_price_id)
@@ -131,13 +158,26 @@ def add_ticket(flight_id, ticket_class_id, ticket_price_id):
 #     for fl in flights:
 #         print(fl)
 
-def add_flight():
-    date_time_str = '15/11/22 19:15:00'
+def add_flight(code = None, from_airport = None, to_airport = None, one_class_quantity = None, second_class_quantity = None, departure_date = None, flight_time = None):
+    # date_time_str = '15/11/22 19:15:00'
 
-    date_time_obj = datetime.strptime(date_time_str, '%d/%m/%y %H:%M:%S')
-    c = Flight(code = "CB-116", from_airport = 4, to_airport = 2, departure_time = date_time_obj)
+    date_time_obj = datetime.strptime(departure_date, '%Y-%m-%dT%H:%M')
+    c = Flight(code = code, from_airport = from_airport, to_airport = to_airport, departure_time = date_time_obj, one_class_quantity = one_class_quantity, second_class_quantity = second_class_quantity, flight_time = flight_time, tuyen_bay_id = 1)
     db.session.add(c)
     db.session.commit()
+
+def delete_flight(flight_id):
+    d = db.session.query(Flight).filter(Flight.id== flight_id).first()
+    db.session.delete(d)
+    db.session.commit()
+
+def add_inter_airport(flight_id, airport_id, thoi_gian_dung = None, ghi_chu = None):
+    a = SanBayTrungGian(flight_id = flight_id, airport_id = airport_id, thoi_gian_dung = thoi_gian_dung, ghi_chu = ghi_chu)
+    db.session.add(a)
+    db.session.commit()
+
+def get_latest_flight_id():
+    return Flight.query.filter(Flight.id == db.session.query(func.max(Flight.id))).first()
 
 def flight_stats():
     # return Flight.query.join(Ticket, Ticket.flight_id.__eq__(Flight.id), isouter = True).add_columns(func.count(Ticket.id))\
@@ -163,9 +203,14 @@ def avenue_month_stats(month = None, from_date = None, to_date = None):
 
     return s.all()
 
+def load_sth(kw = None):
+    u = User.query.filter(User.name.contains(kw))
+    return u
 
 if __name__ == "__main__":
     # print(load_flights(from_country = 1,to_country = 1))
-    # t = get_ticket_price_by_id(9)
-    # print(t)
-    print(count_ticket_by_flight(11))
+    t = get_ticket_price_by_id(flight_id = 11, ticket_class_id=1)
+    print(t)
+    # print(count_ticket_by_ticket_class(flight_id=13, ticket_class_id= 1)[1])
+    # a = [4,6]
+    # print(load_sth(kw= 'Kha'))

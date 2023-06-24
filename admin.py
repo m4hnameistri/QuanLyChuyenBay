@@ -29,7 +29,7 @@ class MyAdminIndex(AdminIndexView):
     @expose('/')
     def index(self):
         return self.render('admin/index.html', stats = dao.flight_stats())
-
+        
 class StatsView(BaseView):
     @expose('/')
     def index(self):

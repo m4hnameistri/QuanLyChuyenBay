@@ -14,6 +14,7 @@ class BaseModel(db.Model):
 class UserRole(UserEnum):
     USER = 1
     ADMIN = 2
+    EMPLOYEE = 3
 
 class User (BaseModel, UserMixin):
     __table_args__ = {'extend_existing': True}
@@ -97,8 +98,8 @@ class TicketClass(BaseModel):
 class Ticket(BaseModel):
     __table_args__ = {'extend_existing': True}
 
-    user_id = Column(Integer, ForeignKey(User.id), nullable = False)
-    flight_id = Column(Integer, ForeignKey(Flight.id), nullable = False)
+    user_id = Column(Integer, ForeignKey(User.id, ondelete='cascade'), nullable = False)
+    flight_id = Column(Integer, ForeignKey(Flight.id, ondelete='cascade'), nullable = False)
     date_of_payment = Column(DateTime, default=datetime.now())
     ticket_class_id = Column(Integer, ForeignKey(TicketClass.id), nullable = False)
     ticket_price_id = Column(Integer, ForeignKey('ticket_price.id'), nullable = False)
@@ -122,7 +123,7 @@ class TicketPrice(BaseModel):
 class SanBayTrungGian(BaseModel):
     flight_id = Column(Integer, ForeignKey(Flight.id), nullable = False)
     airport_id = Column(Integer, ForeignKey(Airport.id), nullable = False)
-    thoi_gian_dung = Column(Integer, default = 15)
+    thoi_gian_dung = Column(Integer, default = 30)
     ghi_chu = Column(String(100), nullable = True )
  
 if __name__ == "__main__":

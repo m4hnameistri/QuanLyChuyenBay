@@ -2,7 +2,7 @@
 {% block content %}
 
 <div>
-    
+<h1 class = "display-6 p-2 mb-5 fw-bold text-center text-dark"> Chi tiết chuyến bay </h1>
     <div class="container" style="max-width: 1000px">
         <div>
             <h6 id="msg_err" class="w-50 mt-4 text-center">{{ msg }} </h6>
@@ -49,7 +49,7 @@
                         <div class="col-7 px-3 mb-3 d-flex justify-content-between ">          
                             {% for t in ticket_prices %}          
                                 <input type="radio" class="btn-check" name="ticket_class" value="{{t.ticket_class_id}}" id="option{{t.id}}" data-price="{{t.id}}" autocomplete="off" checked>
-                                <label class="btn btn-outline-warning" for="option{{t.id}}">Hạng {{t.ticket_class_id}}: {{t.price}}</label>
+                                <label class="btn btn-outline-warning" for="option{{t.id}}">Hạng {{t.ticket_class_id}}: {{"{:,.0f}".format(t.price)}} VNĐ</label>
                             {% endfor %}
                     </div>
                     </div>

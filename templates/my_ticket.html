@@ -1,0 +1,64 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1 class = "display-5 p-2 mb-5 fw-bold text-center text-info"> Vé của bạn </h1>
+<div class="container w-75">
+  <div class="container" style="max-width: 1000px">
+
+    {% for t, p in data %}
+    <div class="row mb-5" style="border: 2px solid #ff6600;">
+        <div class="col-12 p-3 mb-3 d-flex justify-content-between text-light" style="background-color: #346e51 !important;">
+                <div class="d-flex d-flex-inline">
+                    <div class="pe-3 d-inline-flex"><p class ="fw-bold mx-2 title-subject">Mã chuyến bay: </p> {{t.flight.code}} | <p class ="fw-bold mx-2 title-subject"> Ngày khởi hành: </p> {{ t.flight.departure_time }}</div>
+                    <div class="dropdown"></div>
+                </div>
+                <div class="text-end">
+                    ...: <span class="fw-bold"></span>
+                </div>
+        </div>
+        <div class="col-lg-12 p-0">   
+            <div class="card mb-3 border-0">
+                <div class="row g-0">
+                    <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                            <div class="card-body p-2 d-flex d-inline-flex">                               
+                                <div class="pe-3 d-inline-flex"><p class="card-text small">Hành khách: {{current_user.name}}</p></div>
+                            </div> 
+                    </div>
+                </div>
+                <div class="row g-0">
+                    <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                        <div class="card-body p-2"> <p class="card-text small">CCCD: {{current_user.email}} </p> 
+                    </div>
+                    <div class="card-body p-2 text-end"> <p class="card-text small">Số điện thoại: {{current_user.phone}}</p></div>   
+                </div>
+                <div class="row g-0">
+                    <div class="col-7 px-3 mb-3 d-flex justify-content-between ">
+                            <div class="card-body p-2 d-flex d-inline-flex">                               
+                                <div class="pe-3 d-inline-flex"><p class="card-text small">Hạng vé: {{t.ticket_class_id}} </p></div>
+                            </div> 
+                            <div class="card-body p-2 text-end"> <p class="card-text small">Giá tiền: {{"{:,.0f}".format(p[0].price)}} VNĐ</p> 
+                    </div>
+                </div>
+
+            <!-- <form>
+                    <div class="row g-0 form-group">
+                        <div class="col-7 px-3 mb-3 d-flex justify-content-between ">          
+                        {% for t in ticket_prices %}          
+                            <input type="radio" class="btn-check" name="ticket_class" value="{{t.ticket_class_id}}" id="option{{t.id}}" autocomplete="off" checked>
+                            <label class="btn btn-outline-warning" for="option{{t.id}}">Hạng {{t.ticket_class_id}}: {{t.price}}</label>
+                        {% endfor %}
+                        </div>
+                    </div>
+                        {% if current_user.is_authenticated %}
+                        <button type="submit" class="btn btn-primary mb-1">Thanh toán</button>
+                        {% else %}
+                        <p class="text-danger fw-bold text-end">Vui lòng <a href="/signin">đăng nhập</a> để thanh toán!</p>
+                        {% endif %}
+                    </div>
+            </form> -->
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}
